@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Jailbreak</title>
+    <!-- Importing a variety of fonts for the captcha and UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto+Mono:wght@400;700&family=Courier+Prime&family=Libre+Baskerville:ital@0;1&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --card: #ffffff;
+            --text: #1d1d1f;
+            --accent: #007aff;
+            --secondary: #86868b;
+            --border: #d2d2d7;
+            --transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 520px;
+            min-height: 450px;
+            padding: 48px;
+            background: var(--card);
+            border-radius: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            text-align: center;
+            position: relative;
+            margin: 20px;
+        }
+
+        /* Initial Load Animations */
+        .animate-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 0.8s forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .step.active {
+            display: flex;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            color: var(--secondary);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        /* Inputs & Selects */
+        .input-group {
+            text-align: left;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            margin-left: 4px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 18px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            font-size: 16px;
+            margin-bottom: 24px;
+            outline: none;
+            transition: var(--transition);
+            background: #fbfbfb;
+            appearance: none;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+
+        /* Custom Dropdown Arrow */
+        .select-wrapper {
+            position: relative;
+        }
+        .select-wrapper::after {
+            content: '↓';
+            position: absolute;
+            right: 20px;
+            top: 22px;
+            color: var(--secondary);
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        button {
+            background: var(--text);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: auto;
+        }
+
+        button:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* Captcha Styles */
+        .captcha-area {
+            background: #f0f0f2;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+            border: 1px solid #e5e5e7;
+            overflow: hidden;
+        }
+
+        .captcha-char {
+            display: inline-block;
+            font-size: 36px;
+            line-height: 1;
+        }
+
+        /* Success View */
+        .success-circle {
+            width: 72px;
+            height: 72px;
+            background: #34c759;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 24px;
+            animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 32px 24px;
+                border-radius: 0;
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container animate-in">
+    <!-- Step 0: Landing -->
+    <div id="step-landing" class="step active">
+        <h1 style="margin-top: 20px;">Remote Jailbreak</h1>
+        <p>Remotely Jailbreak A iOS 26 Device And Install Sileo With This Tool</p>
+        <button onclick="goToStep(1)">Get Started</button>
+    </div>
+
+    <!-- Step 1: Model Selection -->
+    <div id="step-1" class="step">
+        <h1>Device Model</h1>
+        <p>Select Your iPhone Model So We Can Bring The Right Jailbreak For The Right Device.</p>
+        
+        <div class="input-group">
+            <label>MODEL NAME</label>
+            <div class="select-wrapper">
+                <select id="deviceModel">
+                    <optgroup label="iPhone 17 Series">
+                        <option>iPhone 17 Pro Max</option>
+                        <option>iPhone 17 Pro</option>
+                        <option>iPhone 17</option>
+                        <option>iPhone Air</option>
+                    </optgroup>
+                    <optgroup label="iPhone 16 Series">
+                        <option>iPhone 16 Pro Max</option>
+                        <option>iPhone 16 Pro</option>
+                        <option>iPhone 16 Plus</option>
+                        <option>iPhone 16</option>
+                        <option>iPhone 16e</option>
+                    </optgroup>
+                    <optgroup label="iPhone 15 Series">
+                        <option>iPhone 15 Pro Max</option>
+                        <option>iPhone 15 Pro</option>
+                        <option>iPhone 15 Plus</option>
+                        <option>iPhone 15</option>
+                    </optgroup>
+                    <optgroup label="iPhone 14 Series">
+                        <option>iPhone 14 Pro Max</option>
+                        <option>iPhone 14 Pro</option>
+                        <option>iPhone 14 Plus</option>
+                        <option>iPhone 14</option>
+                    </optgroup>
+                    <optgroup label="iPhone 13 Series">
+                        <option>iPhone 13 Pro Max</option>
+                        <option>iPhone 13 Pro</option>
+                        <option>iPhone 13 mini</option>
+                        <option>iPhone 13</option>
+                    </optgroup>
+                    <optgroup label="iPhone 12 Series">
+                        <option>iPhone 12 Pro Max</option>
+                        <option>iPhone 12 Pro</option>
+                        <option>iPhone 12 mini</option>
+                        <option>iPhone 12</option>
+                    </optgroup>
+                    <optgroup label="iPhone 11 Series">
+                        <option>iPhone 11 Pro Max</option>
+                        <option>iPhone 11 Pro</option>
+                        <option>iPhone 11</option>
+                    </optgroup>
+                    <optgroup label="iPhone SE">
+                        <option>iPhone SE (3rd generation)</option>
+                        <option>iPhone SE (2nd generation)</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+        <button onclick="goToStep(2)">Continue</button>
+    </div>
+
+    <!-- Step 2: IMEI Input -->
+    <div id="step-2" class="step">
+        <h1>IMEI</h1>
+        <p>Enter Your iPhone's IMEI So We Can Identify Which iPhone To Jailbreak</p>
+        
+        <div class="input-group">
+            <label>IMEI NUMBER</label>
+            <input type="text" id="imeiField" placeholder="Enter 15 digits" maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
+        
+        <button onclick="prepareCaptcha(); goToStep(3)">Verify Identity</button>
+    </div>
+
+    <!-- Step 3: Captcha -->
+    <div id="step-3" class="step">
+        <h1>Human Check</h1>
+        <p>Complete The Human Check To Verify That You Are A Human. This Is The Last Step Of The Jailbreak Process.</p>
+        
+        <div class="captcha-area" id="captchaContainer"></div>
+        
+        <div class="input-group">
+            <label>DECODED WORD</label>
+            <input type="text" id="captchaInput" placeholder="Enter word" autocomplete="off">
+        </div>
+        
+        <button onclick="verifyCaptcha()">Finalize Verification</button>
+    </div>
+
+    <!-- Step 4: Success -->
+    <div id="step-success" class="step">
+        <div class="success-circle">✓</div>
+        <h1>Complete</h1>
+        <p>Your iPhone Should Restart At Any Second Now. If You See A Setup Screen Do Not Panic Thats A Part Of The Jailbreak All Your Data Will Still Be Saved.</p>
+        <button onclick="resetApp()">Go Back To Main Page</button>
+    </div>
+</div>
+
+<script>
+    const fonts = [
+        "'Inter', sans-serif", 
+        "'Playfair Display', serif", 
+        "'Roboto Mono', monospace", 
+        "'Courier Prime', monospace", 
+        "'Libre Baskerville', serif",
+        "'Lora', serif"
+    ];
+    
+    const captchaWords = ['APPLE', 'PEAR', 'CHERRY', 'ORANGE', 'BANANA', 'MELON', 'GRAPE', 'LEMON', 'MANGO', 'PEACH'];
+    let activeCaptcha = "";
+
+    /**
+     * Navigation Logic
+     */
+    function goToStep(stepNumber) {
+        // Hide all steps
+        document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+        
+        // Map numbers to IDs
+        const stepIds = ['step-landing', 'step-1', 'step-2', 'step-3', 'step-success'];
+        const target = document.getElementById(stepIds[stepNumber]);
+        
+        if (target) {
+            target.classList.add('active');
+        }
+    }
+
+    /**
+     * Captcha Generation
+     */
+    function prepareCaptcha() {
+        const container = document.getElementById('captchaContainer');
+        container.innerHTML = "";
+        activeCaptcha = captchaWords[Math.floor(Math.random() * captchaWords.length)];
+        
+        activeCaptcha.split('').forEach(char => {
+            const span = document.createElement('span');
+            span.innerText = char;
+            span.className = "captcha-char";
+            
+            // Randomize visual properties
+            const randomFont = fonts[Math.floor(Math.random() * fonts.length)];
+            const randomRotate = Math.floor(Math.random() * 40) - 20; // -20 to 20 deg
+            const randomY = Math.floor(Math.random() * 14) - 7; // -7 to 7px
+            const randomWeight = [300, 400, 700][Math.floor(Math.random() * 3)];
+            
+            span.style.fontFamily = randomFont;
+            span.style.transform = `rotate(${randomRotate}deg) translateY(${randomY}px)`;
+            span.style.fontWeight = randomWeight;
+            span.style.fontStyle = Math.random() > 0.5 ? 'italic' : 'normal';
+            
+            container.appendChild(span);
+        });
+    }
+
+    /**
+     * Verification Logic
+     */
+    function verifyCaptcha() {
+        const userInput = document.getElementById('captchaInput').value.trim().toUpperCase();
+        
+        if (userInput === activeCaptcha) {
+            goToStep(4);
+        } else {
+            // Error handling (simple custom UI)
+            const inputField = document.getElementById('captchaInput');
+            inputField.style.borderColor = "#ff3b30";
+            inputField.style.boxShadow = "0 0 0 4px rgba(255, 59, 48, 0.1)";
+            
+            setTimeout(() => {
+                alert("Incorrect word. Please try the new code.");
+                inputField.value = "";
+                inputField.style.borderColor = "var(--border)";
+                inputField.style.boxShadow = "none";
+                prepareCaptcha();
+            }, 100);
+        }
+    }
+
+    function resetApp() {
+        location.reload();
+    }
+
+    // Auto-focus IMEI field when entering step 2
+    document.addEventListener('click', (e) => {
+        if (document.getElementById('step-2').classList.contains('active')) {
+            document.getElementById('imeiField').focus();
+        }
+    });
+</script>
+
+</body>
+</html>
